@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import "./coursestudy.css";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { CourseData } from "../../context/CourseContext";
@@ -6,47 +6,61 @@ import { server } from "../../main";
 import courseImageJapanese from "./assets/japan-course.png";
 import courseImageCulture from "./assets/Culture.jpg";
 import courseImageVietnamese from "./assets/vietnamese.jpg";
+import axios from "axios";
 
-
-// const CourseCard = ({ course }) => {
-  
 const CourseStudy = ({ user }) => {
-  const references = [
-    {
-      title: "Introduction to Japanese Language",
-      description: "An overview of the Japanese language for beginners.",
-      link: "https://www.example.com/japanese-introduction",
-    },
-    {
-      title: "Japanese Cultural Practices",
-      description: "Deep dive into traditional Japanese culture.",
-      link: "https://www.example.com/japanese-culture",
-    },
-    {
-      title: "Advanced Vietnamese Grammar",
-      description: "Understand advanced grammar rules in Vietnamese.",
-      link: "https://www.example.com/vietnamese-grammar",
-    },
-  ];
+  const [lectures, setLectures] = useState([]);
+  const [completedLectures, setCompletedLectures] = useState([]);
+  const [progress, setProgress] = useState(0);
+  const [loading, setLoading] = useState(true);
+  
+  const params = useParams();
+  const { fetchCourse, course } = CourseData();
+  const navigate = useNavigate();
+
+  // Simulating lecture completion (you would replace this with actual logic)
+  const handleLectureCompletion = (lectureId) => {
+    setCompletedLectures((prev) => [...prev, lectureId]); // Add to completed lectures
+    // Update progress or send to backend if necessary
+  };
+
+  // Fetch course lectures
+  async function fetchLectures() {
+    try {
+      const { data } = await axios.get(`${server}/api/lectures/${params.id}`);
+      setLectures(data.lectures);
+      setLoading(false);
+    } catch (error) {
+      console.log(error);
+      setLoading(false);
+    }
+  }
+
+  // Fetch user's progress on this course
+  async function fetchProgress() {
+    try {
+      const { data } = await axios.get(`${server}/api/user/progress?course=${params.id}`);
+      setCompletedLectures(data.completedLectures);
+      setProgress(data.progress); // assuming data.progress is a percentage
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  useEffect(() => {
+    fetchCourse(params.id);
+    fetchLectures();
+    fetchProgress();
+  }, [params.id]);
+
+  if (user && user.role !== "admin" && !user.subscription.includes(params.id)) return navigate("/");
 
   const categoryImages = {
     "Japanese": courseImageJapanese,
     "Culture": courseImageCulture,
     "Vietnamese": courseImageVietnamese,
-    "Default": courseImageJapanese, 
+    "Default": courseImageJapanese,
   };
-
-  const params = useParams();
-
-  const { fetchCourse, course } = CourseData();
-  const navigate = useNavigate();
-
-  if (user && user.role !== "admin" && !user.subscription.includes(params.id))
-    return navigate("/");
-
-  useEffect(() => {
-    fetchCourse(params.id);
-  }, []);
 
   return (
     <>
@@ -55,65 +69,68 @@ const CourseStudy = ({ user }) => {
           {/* Section 1: Title */}
           <div className="course-title-section">
             <h1>{course.title}</h1>
-            <p>Duration: {course.duration} weeks</p>
+            <p>間隔: {course.duration} 週間</p>
             <Link to={`/lectures/${course._id}`} className="continue-btn">
-              <h2>Continue Learning</h2>
+              <h2>学習を続ける</h2>
             </Link>
           </div>
 
-          {/* Section 3: Tabs */}
-          <div className="course-tabs">
-            <button>Content</button>
-            <button>Exercises</button>
-          </div>
-
-          {/* Section 2: Statistics */}
-          <div className="course-statistics">
-            <img src={categoryImages[course.category] || categoryImages["Default"]} alt="Course Thumbnail" />
-            <div className="course-stats">
-              <p>Total Lectures: {course.lecturesCount || 0}</p>
-              <p>Completed: {course.completedLectures || 0}</p>
-              <p>Progress: {course.progress || 0}%</p>
-              {/* <Link to={`/lectures/${course._id}`}>
-                <h2>Continue</h2>
-              </Link> */}
-            </div>
-          </div>
-
-          
-
-          {/* Section 4: Content */}
-          <div className="course-content">
-            {course.sections?.map((section, index) => (
-              <div key={index} className="course-section">
-                <h3>{section.title}</h3>
-                <ul>
-                  {section.lectures?.map((lecture, idx) => (
-                    <li key={idx}>
-                      <input type="checkbox" checked={lecture.completed} readOnly />
-                      {lecture.title}
-                    </li>
-                  ))}
-                </ul>
+          {/* Section 2: Course Stats */}
+          <div className="course-stats-container">
+            <div className="course-statistics">
+              <img
+                src={categoryImages[course.category] || categoryImages["Default"]}
+                alt="Course Thumbnail"
+              />
+              <div className="course-stats">
+                <p>総講義数: {lectures.length}</p>
+                <p>完了: {completedLectures.length}</p>
+                <p>進捗: {progress}%</p>
               </div>
-            ))}
-          </div>
+            </div>
 
-          {/* Section 5: References */}
-            <div className="course-references">
-              <h2>References</h2>
+          {/* Section 3: Lectures List */}
+          <div className="course-lectures">
+            <h2>講義</h2>
+            {loading ? (
+              <p>講義を読み込んでいます...</p>
+            ) : (
               <ul>
-                {references.map((ref, index) => (
-                  <li key={index} className="reference-item">
-                    <h3>{ref.title}</h3>
-                    <p>{ref.description}</p>
-                    <a href={ref.link} target="_blank" rel="noopener noreferrer">
-                      View Resource
-                    </a>
+                {lectures.map((lecture) => (
+                  <li key={lecture._id}>
+                    <input
+                      type="checkbox"
+                      checked={completedLectures.includes(lecture._id)}
+                      onChange={() => handleLectureCompletion(lecture._id)}
+                    />
+                    <Link to={`/lectures/${course._id}`}>{lecture.title}</Link>
                   </li>
                 ))}
               </ul>
-            </div>
+            )}
+          </div>
+          </div>
+
+          {/* Section 4: References */}
+          <div className="course-references">
+            <h2>参考文献</h2>
+            <ul>
+              <li className="reference-item">
+                <h3>日本語入門</h3>
+                <p>初心者のための日本語の概要.</p>
+                <a href="https://www.example.com/japanese-introduction" target="_blank" rel="noopener noreferrer">
+                リソースを表示
+                </a>
+              </li>
+              <li className="reference-item">
+                <h3>日本の文化的慣習</h3>
+                <p>日本の伝統文化を深く知る.</p>
+                <a href="https://www.example.com/japanese-culture" target="_blank" rel="noopener noreferrer">
+                リソースを表示
+                </a>
+              </li>
+            </ul>
+          </div>
         </div>
       )}
     </>
@@ -121,42 +138,3 @@ const CourseStudy = ({ user }) => {
 };
 
 export default CourseStudy;
-
-
-// import React, { useEffect } from "react";
-// import "./coursestudy.css";
-// import { Link, useNavigate, useParams } from "react-router-dom";
-// import { CourseData } from "../../context/CourseContext";
-// import { server } from "../../main";
-
-// const CourseStudy = ({ user }) => {
-//   const params = useParams();
-
-//   const { fetchCourse, course } = CourseData();
-//   const navigate = useNavigate();
-
-//   if (user && user.role !== "admin" && !user.subscription.includes(params.id))
-//     return navigate("/");
-
-//   useEffect(() => {
-//     fetchCourse(params.id);
-//   }, []);
-//   return (
-//     <>
-//       {course && (
-//         <div className="course-study-page">
-//           <img src={`${server}/${course.image}`} alt="" width={350} />
-//           <h2>{course.title}</h2>
-//           <h4>{course.description}</h4>
-//           <h5>by - {course.createdBy}</h5>
-//           <h5>Duration - {course.duration} weeks</h5>
-//           <Link to={`/lectures/${course._id}`}>
-//             <h2>Lectures</h2>
-//           </Link>
-//         </div>
-//       )}
-//     </>
-//   );
-// };
-
-// export default CourseStudy;

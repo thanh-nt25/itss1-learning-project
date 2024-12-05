@@ -44,21 +44,33 @@
   background-color: #723b8c;
 }
 /* Section 2: Statistics */
-.course-statistics {
+/* Section 2: Course Stats and Lectures */
+.course-stats-container {
   display: flex;
-  gap: 20px;
-  align-items: center;
-  background-color: white;
-  padding: 20px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+  gap: 20px; /* Khoảng cách giữa hai cột */
+  justify-content: space-between;
+}
+
+/* Chỉnh sửa thứ tự các phần */
+.course-statistics {
+  order: 2; /* Đảm bảo phần này ở bên phải */
+}
+
+.course-lectures {
+  order: 1; /* Đảm bảo phần này ở bên trái */
+}
+
+.course-statistics,
+.course-lectures {
+  width: 48%; /* Chiếm khoảng 48% chiều rộng của container */
 }
 
 .course-statistics img {
-  width: 300px;
-  height: 150px;
-  object-fit: cover;
-  border-radius: 8px;
+  width: 100%; /* Đặt chiều rộng ảnh chiếm toàn bộ không gian của cột */
+  max-width: 500px; /* Đặt chiều rộng tối đa cho ảnh, có thể thay đổi theo nhu cầu */
+  height: auto; /* Đảm bảo tỷ lệ khung hình của ảnh không bị biến dạng */
+  object-fit: cover; /* Giữ ảnh đầy đủ nhưng không bị vỡ */
+  border-radius: 8px; /* Làm tròn các góc ảnh */
 }
 
 .course-stats {
@@ -72,7 +84,27 @@
   font-size: 16px;
   color: #333;
 }
+.course-lectures ul {
+  list-style-type: none;
+  padding: 0;
+}
 
+.course-lectures li {
+  margin: 10px 0;
+}
+
+.course-lectures input[type="checkbox"] {
+  margin-right: 10px;
+}
+
+.course-lectures a {
+  text-decoration: none;
+  color: #007bff;
+}
+
+.course-lectures a:hover {
+  text-decoration: underline;
+}
 /* Section 3: Tabs */
 .course-tabs {
   display: flex;
@@ -191,4 +223,34 @@
 
 .reference-item a:hover {
   text-decoration: underline;
+}
+
+.course-lectures ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.course-lectures li {
+  margin: 10px 0;
+}
+
+.course-lectures input[type="checkbox"] {
+  margin-right: 10px;
+}
+
+.course-lectures a {
+  text-decoration: none;
+  color: #007bff;
+}
+
+.course-lectures a:hover {
+  text-decoration: underline;
+}
+
+.course-references {
+  margin-top: 30px;
+}
+
+.course-references .reference-item {
+  margin-bottom: 20px;
 }

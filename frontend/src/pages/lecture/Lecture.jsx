@@ -196,10 +196,10 @@ const Lecture = ({ user }) => {
         <Loading />
       ) : (
         <>
-          <div className="progress">
+          {/* <div className="progress">
             Lecture completed - {completedLec} out of {lectLength} <br />
             <progress value={completed} max={100}></progress> {completed} %
-          </div>
+          </div> */}
           <div className="lecture-page">
             <div className="left">
               {lecLoading ? (
@@ -231,7 +231,7 @@ const Lecture = ({ user }) => {
                       <h3>{lecture.description}</h3>
                     </>
                   ) : (
-                    <h1>Please Select a Lecture</h1>
+                    <h1>講義を選択してください</h1>
                   )}
                 </>
               )}
@@ -287,11 +287,11 @@ const Lecture = ({ user }) => {
                   {show ? "Close" : "Add Lecture +"}
                 </button>
               )} */}
-              {true && (
+              {/* {true && (
                 <button className="common-btn" onClick={() => setShow(!show)}>
                   {show ? "Close" : "Add Lecture+ (just for Admin)"}
                 </button>
-              )}
+              )} */}
 
               {show && (
                 <div className="lecture-form">

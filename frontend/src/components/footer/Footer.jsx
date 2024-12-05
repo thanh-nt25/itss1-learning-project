@@ -11,7 +11,7 @@ const Footer = () => {
     <footer>
       <div className="footer-content">
         <p>
-        HouRenShuu Platform
+        HouRenShuu プラットフォーム
         </p>
         <div className="social-links">
           {/* <a href="">

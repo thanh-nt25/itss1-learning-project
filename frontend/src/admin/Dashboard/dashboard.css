@@ -1,21 +1,105 @@
-.main-content {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-wrap: wrap;
-
-  .box {
-    margin-left: 20px;
-    background-color: #8a4baf;
-    padding: 5px;
-    border-radius: 5px;
-    text-align: center;
-    margin-top: 5px;
-    color: white;
-
-    &:hover {
-      background-color: #432456;
-    }
-  }
+/* Reset CSS */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f4;
+}
+
+/* Admin Dashboard Layout */
+.admin-dashboard {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Dashboard container */
+.dashboard-container {
+  flex: 1;
+  padding: 20px;
+  margin-left: 240px; /* Điều chỉnh tùy thuộc vào sidebar của bạn */
+}
+
+/* Header */
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #fff;
+  padding: 15px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-header .header-left h1 {
+  font-size: 24px;
+  color: #333;
+}
+
+.dashboard-header .header-right .user-info {
+  display: flex;
+  align-items: center;
+}
+
+.dashboard-header .user-info .user-avatar {
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  margin-right: 10px;
+}
+
+.dashboard-header .user-info .username {
+  font-size: 16px;
+  color: #333;
+}
+
+/* Main Content */
+.main-content {
+  margin-top: 20px;
+}
+
+/* Grid layout for cards (2 columns, 2 rows) */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);  /* 2 cột */
+  grid-template-rows: repeat(2, 1fr);  /* 2 hàng */
+  gap: 20px;
+}
+
+.stat-card {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.stat-card h2 {
+  font-size: 20px;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+/* Footer */
+.footer {
+  text-align: center;
+  padding: 20px;
+  background-color: #fff;
+  margin-top: 30px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.footer p {
+  font-size: 14px;
+  color: #aaa;
+}
+
+/* Media Queries (Responsive design) */
+@media (max-width: 768px) {
+  .card-grid {
+    grid-template-columns: 1fr; /* Chuyển thành 1 cột trên màn hình nhỏ */
+  }
+}

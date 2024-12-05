@@ -1,17 +1,13 @@
 import React from "react";
 import "./courseCard.css";
 import { server } from "../../main";
-import { UserData } from "../../context/UserContext";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import axios from "axios";
-import { CourseData } from "../../context/CourseContext";
 import courseImageJapanese from "./japan-course.png";
 import courseImageCulture from "./Culture.jpg";
 import courseImageVietnamese from "./vietnamese.jpg";
 import { useLocation } from "react-router-dom";
-
-
 
 const CourseCard = ({ course }) => {
   const categoryImages = {
@@ -21,98 +17,75 @@ const CourseCard = ({ course }) => {
     "Default": courseImageJapanese, 
   };
 
-  // add
+  // Checking if we are in the Admin route
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith("/admin");
-  //add
-  const navigate = useNavigate();
-  const { user, isAuth } = UserData();
 
-  const { fetchCourses } = CourseData();
+  const navigate = useNavigate();
+
+  // Simulating user's progress for each course (static data)
+  const completedLessons = course.completedLessons || 0;  // Static number of completed lessons
+  const totalLessons = course.totalLessons || 0;  // Total lessons in the course
+  const progress = totalLessons > 0 ? (completedLessons / totalLessons) * 100 : 0;  // Calculate progress
+
+  // Simulate whether the user has subscribed or studied the course
+  const isSubscribed = true;  // Simulate subscription status (for demo purposes)
 
   const deleteHandler = async (id) => {
     if (confirm("Are you sure you want to delete this course")) {
       try {
         const { data } = await axios.delete(`${server}/api/course/${id}`);
-
-        // const { data } = await axios.delete(`${server}/api/course/${id}`, {
-        //   headers: {
-        //     token: localStorage.getItem("token"),
-        //   },
-        // });
-
         toast.success(data.message);
-        fetchCourses();
       } catch (error) {
         toast.error(error.response.data.message);
       }
     }
   };
+
+  // Status - Studied or Not Studied
+  const isStudied = isSubscribed ? "Studied" : "Not Studied"; 
+
   return (
     <div className="course-card">
-      {/* <img src={`${server}/${course.image}`} alt="" className="course-image" /> */}
       <img
         src={categoryImages[course.category] || categoryImages["Default"]}
         alt={course.category}
         className="course-image"
       />
       <h3>{course.title}</h3>
-      <p>Instructor: {course.createdBy}</p>
-      <p>Duration: {course.duration} weeks</p>
-      <p>Price: {course.price}</p>
-      {isAuth ? (
-        <>
-          {user && user.role !== "admin" ? (
-            <>
-              {user.subscription.includes(course._id) ? (
-                <button
-                  onClick={() => navigate(`/course/study/${course._id}`)}
-                  className="common-btn"
-                >
-                  Study
-                </button>
-              ) : (
-                <button
-                  onClick={() => navigate(`/course/${course._id}`)}
-                  className="common-btn"
-                >
-                  Get Started
-                </button>
-              )}
-            </>
-          ) : (
-            <button
-              onClick={() => navigate(`/course/study/${course._id}`)}
-              className="common-btn"
-            >
-              Study
-            </button>
-          )}
-        </>
-      ) : (
-        <button onClick={() => navigate("/login")} className="common-btn">
-          Get Started
-        </button>
+      <p>講師: {course.createdBy}</p>
+      <p>間隔: {course.duration} 週間</p>
+      <p>価格: {course.price}</p>
+
+      {/* Tab: Studied or Not Studied */}
+      <div className={`status-tab ${isStudied === "勉強した" ? "勉強した" : "勉強していない"}`}>
+        {isStudied}
+      </div>
+
+      {/* Static Progress Bar */}
+      {isSubscribed && (
+        <div className="progress-container">
+          <div className="progress-bar" style={{ width: `${progress}%` }}></div>
+          <span className="progress-text">{Math.round(progress)}% 完了</span>
+        </div>
       )}
+
+      <button
+        onClick={() => navigate(`/course/study/${course._id}`)}
+        className="common-btn"
+      >
+        始める
+      </button>
 
       <br />
 
-      {/* {user && user.role === "admin" && (
-        <button
-          onClick={() => deleteHandler(course._id)}
-          className="common-btn"
-          style={{ background: "red" }}
-        >
-          Delete
-        </button>
-      )} */}
       {isAdminRoute && (
         <button
           onClick={() => deleteHandler(course._id)}
           className="common-btn"
           style={{ background: "red" }}
         >
-          Delete
+          消去
         </button>
       )}
     </div>

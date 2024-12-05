@@ -1,185 +1,137 @@
 import React, { useState } from "react";
 import Layout from "../Utils/Layout";
 import { useNavigate } from "react-router-dom";
-import { CourseData } from "../../context/CourseContext";
-import CourseCard from "../../components/coursecard/CourseCard";
-import "./admincourses.css";
 import toast from "react-hot-toast";
-import axios from "axios";
-import { server } from "../../main";
-
-const categories = [
-  "Japanese",
-  "Vietnamese",
-  "Culture",
-];
+import "./admincourses.css";
 
 const AdminCourses = ({ user }) => {
   const navigate = useNavigate();
+  // Mock data for courses (this would normally come from an API)
+  const courses = [
+    { id: 1, name: "React for Beginners", level: "Beginner", participants: 120, status: "Active", category: "Web Development" },
+    { id: 2, name: "Advanced JavaScript", level: "Advanced", participants: 85, status: "Inactive", category: "Programming" },
+    { id: 3, name: "Python Fundamentals", level: "Beginner", participants: 200, status: "Active", category: "Data Science" },
+    { id: 4, name: "Full Stack Development", level: "Intermediate", participants: 150, status: "Inactive", category: "Web Development" },
+    { id: 5, name: "Machine Learning 101", level: "Advanced", participants: 180, status: "Active", category: "Data Science" },
+    { id: 6, name: "UI/UX Design Basics", level: "Beginner", participants: 100, status: "Active", category: "Design" },
+    // Add more mock courses as needed
+  ];
 
-  if (user && user.role !== "admin") return navigate("/");
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const coursesPerPage = 5;
 
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [category, setCategory] = useState("");
-  const [price, setPrice] = useState("");
-  const [createdBy, setCreatedBy] = useState("");
-  const [duration, setDuration] = useState("");
-  const [image, setImage] = useState("");
-  const [imagePrev, setImagePrev] = useState("");
-  const [btnLoading, setBtnLoading] = useState(false);
-
-  const changeImageHandler = (e) => {
-    const file = e.target.files[0];
-    const reader = new FileReader();
-
-    reader.readAsDataURL(file);
-
-    reader.onloadend = () => {
-      setImagePrev(reader.result);
-      setImage(file);
-    };
+  // Handle page change
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
   };
 
-  const { courses, fetchCourses } = CourseData();
+  // Get current courses for the page
+  const indexOfLastCourse = currentPage * coursesPerPage;
+  const indexOfFirstCourse = indexOfLastCourse - coursesPerPage;
+  const currentCourses = courses.slice(indexOfFirstCourse, indexOfLastCourse);
 
-  const submitHandler = async (e) => {
-    e.preventDefault();
-    setBtnLoading(true);
+  // Total pages calculation
+  const totalPages = Math.ceil(courses.length / coursesPerPage);
 
-    const myForm = new FormData();
-
-    myForm.append("title", title);
-    myForm.append("description", description);
-    myForm.append("category", category);
-    myForm.append("price", price);
-    myForm.append("createdBy", createdBy);
-    myForm.append("duration", duration);
-    myForm.append("file", image);
-
-    try {
-      const {data} = await axios.post(`${server}/api/course/new`, myForm);
-
-      // const { data } = await axios.post(`${server}/api/course/new`, myForm, {
-      //   headers: {
-      //     token: localStorage.getItem("token"),
-      //   },
-      // });
-
-      toast.success(data.message);
-      setBtnLoading(false);
-      await fetchCourses();
-      setImage("");
-      setTitle("");
-      setDescription("");
-      setDuration("");
-      setImagePrev("");
-      setCreatedBy("");
-      setPrice("");
-      setCategory("");
-    } catch (error) {
-      toast.error(error.response.data.message);
-    }
+  // Handle delete course
+  const handleDeleteCourse = (courseId) => {
+    toast.error(`Course with ID: ${courseId} deleted!`);
+    // Add deletion logic here (this is just a mock)
   };
 
   return (
-    <Layout>
-      <div className="admin-courses">
-        <div className="left">
-          <h1>All Courses</h1>
-          {/* <div className="dashboard-content">
-            {courses && courses.length > 0 ? (
-              courses.map((e) => {
-                return <CourseCard key={e._id} course={e} />;
-              })
-            ) : (
-              <p>No Courses Yet</p>
-            )}
-          </div> */}
-          <div className="dashboard-content">
-            {courses && courses.length > 0 ? (
-              courses.map((e) => {
-                return <CourseCard key={e._id} course={e} />;
-              })
-            ) : (
-              <p>No Courses Yet</p>
-            )}
-          </div>
+    <div className="admin-courses">
+      <h1>コース管理</h1>
+
+      {/* Filter Section */}
+      <div className="filter-section">
+        {/* Left side: Pagination info */}
+        <div className="filter-left">
+          {/* <p>{`Showing ${currentPage * usersPerPage - usersPerPage + 1} - ${Math.min(currentPage * usersPerPage, users.length)} of ${users.length} users`}</p> */}
+          <select>
+            <option value="5">1ページあたり5件</option>
+            <option value="10">1ページあたり10件</option>
+            <option value="15">1ページあたり15件</option>
+          </select>
         </div>
 
-        <div className="right">
-          <div className="add-course">
-            <div className="course-form">
-              <h2>Add Course</h2>
-              <form onSubmit={submitHandler}>
-                <label htmlFor="text">Title</label>
-                <input
-                  type="text"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  required
-                />
-
-                <label htmlFor="text">Description</label>
-                <input
-                  type="text"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  required
-                />
-
-                <label htmlFor="text">Price</label>
-                <input
-                  type="number"
-                  value={price}
-                  onChange={(e) => setPrice(e.target.value)}
-                  required
-                />
-
-                <label htmlFor="text">createdBy</label>
-                <input
-                  type="text"
-                  value={createdBy}
-                  onChange={(e) => setCreatedBy(e.target.value)}
-                  required
-                />
-
-                <select
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                >
-                  <option value={""}>Select Category</option>
-                  {categories.map((e) => (
-                    <option value={e} key={e}>
-                      {e}
-                    </option>
-                  ))}
-                </select>
-
-                <label htmlFor="text">Duration</label>
-                <input
-                  type="number"
-                  value={duration}
-                  onChange={(e) => setDuration(e.target.value)}
-                  required
-                />
-
-                <input type="file" required onChange={changeImageHandler} />
-                {imagePrev && <img src={imagePrev} alt="" width={300} />}
-
-                <button
-                  type="submit"
-                  disabled={btnLoading}
-                  className="common-btn"
-                >
-                  {btnLoading ? "Please Wait..." : "Add"}
-                </button>
-              </form>
-            </div>
-          </div>
+        {/* Right side: Search and Filter */}
+        <div className="filter-right">
+          <input type="text" placeholder="ユーザーを検索..." />
+          <select>
+            <option value="">役割を選択</option>
+            <option value="Admin">Admin</option>
+            <option value="User">User</option>
+          </select>
         </div>
+
+        <button className="add-user-btn" onClick={() => navigate('/admin/addcourse')}>コースを追加</button>
       </div>
-    </Layout>
+
+      {/* Course Table */}
+      <table className="course-table">
+        <thead>
+          <tr>
+            <th>名前</th>
+            <th>レベル</th>
+            <th>参加者</th>
+            <th>状態</th>
+            <th>カテゴリ</th>
+            <th>アクション</th>
+          </tr>
+        </thead>
+        <tbody>
+          {currentCourses.map((course) => (
+            <tr key={course.id}>
+              <td>{course.name}</td>
+              <td>{course.level}</td>
+              <td>{course.participants}</td>
+              <td className={`status ${course.status}`}>
+                {course.status === "Active" ? "Active" : "Inactive"}
+              </td>
+              <td>{course.category}</td>
+              <td className="actions">
+                <button className="edit"　onClick={() => toast.success(`Editing course: ${course.name}`)}>View</button>
+                <button
+                  className="delete-btn"
+                  onClick={() => handleDeleteCourse(course.id)}
+                >
+                  Delete
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      {/* Pagination */}
+      <div className="pagination">
+        <button
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+        >
+          前へ
+        </button>
+        {Array.from({ length: totalPages }, (_, index) => index + 1).map(
+          (page) => (
+            <button
+              key={page}
+              className={currentPage === page ? "active" : ""}
+              onClick={() => handlePageChange(page)}
+            >
+              {page}
+            </button>
+          )
+        )}
+        <button
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+        >
+          次
+        </button>
+      </div>
+    </div>
   );
 };
 

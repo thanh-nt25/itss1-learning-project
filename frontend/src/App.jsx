@@ -19,6 +19,8 @@ import CourseStudy from "./pages/coursestudy/CourseStudy";
 import Lecture from "./pages/lecture/Lecture";
 import AdminDashbord from "./admin/Dashboard/AdminDashbord";
 import AdminCourses from "./admin/Courses/AdminCourses";
+// import AddCourse from "./admin/Course/AddCourse";
+import AddCourse from "./admin/Courses/AddCourse";
 import AdminUsers from "./admin/Users/AdminUsers";
 import ForgotPassword from "./pages/auth/ForgotPassword";
 import ResetPassword from "./pages/auth/ResetPassword";
@@ -88,6 +90,10 @@ const App = () => {
             <Route
               path="/admin/users"
               element={isAuth ? <AdminUsers user={user} /> : <Login />}
+            />
+            <Route 
+              path="/admin/addcourse" 
+              element={isAuth ? <AddCourse user={user} /> : <Login />} 
             />
           </Routes>
           <Footer />

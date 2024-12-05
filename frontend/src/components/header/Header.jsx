@@ -19,21 +19,21 @@ const Header = ({ isAuth }) => {
       <div className="search-bar">
         <input
           type="text"
-          placeholder="Search courses..."
+          placeholder="コースを検索..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
-        <button onClick={handleSearch}>Search</button>
+        <button onClick={handleSearch}>検索</button>
       </div>
 
       <div className="link">
         {/* <Link to={"/"}>Home</Link> */}
-        <Link to={"/courses"}>Courses</Link>
-        <Link to={"/about"}>About</Link>
+        <Link to={"/courses"}>コース</Link>
+        <Link to={"/about"}>について</Link>
         {isAuth ? (
-          <Link to={"/account"}>Account</Link>
+          <Link to={"/account"}>アカウント</Link>
         ) : (
-          <Link to={"/login"}>Login</Link>
+          <Link to={"/login"}>ログイン</Link>
         )}
       </div>
     </header>
